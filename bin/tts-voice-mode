@@ -1,0 +1,53 @@
+#!/bin/bash
+# Voice mode toggle for Kokoro TTS
+# When enabled, Claude automatically converts all responses to speech
+
+STATE_FILE="$HOME/.config/tts-service/voice_mode"
+CONFIG_DIR="$(dirname "$STATE_FILE")"
+
+# Ensure config directory exists
+mkdir -p "$CONFIG_DIR"
+
+case "${1:-}" in
+    on|enable|start)
+        echo "af_bella" > "$STATE_FILE"
+        echo "✓ Voice mode enabled (voice: af_bella)"
+        echo "  All Claude responses will be spoken automatically"
+        echo "  To change voice: tts-voice-mode voice <voice_id>"
+        echo "  To disable: tts-voice-mode off"
+        ;;
+    off|disable|stop)
+        rm -f "$STATE_FILE"
+        echo "✓ Voice mode disabled"
+        ;;
+    voice)
+        if [ -z "$2" ]; then
+            echo "Usage: tts-voice-mode voice <voice_id>"
+            echo "Example: tts-voice-mode voice am_adam"
+            exit 1
+        fi
+        echo "$2" > "$STATE_FILE"
+        echo "✓ Voice mode voice changed to: $2"
+        ;;
+    status)
+        if [ -f "$STATE_FILE" ]; then
+            VOICE=$(cat "$STATE_FILE")
+            echo "Voice mode: ENABLED"
+            echo "Current voice: $VOICE"
+        else
+            echo "Voice mode: DISABLED"
+        fi
+        ;;
+    *)
+        echo "Usage: tts-voice-mode {on|off|voice <voice_id>|status}"
+        echo ""
+        echo "Commands:"
+        echo "  on              Enable voice mode (default: af_bella)"
+        echo "  off             Disable voice mode"
+        echo "  voice <id>      Change voice (e.g., am_adam, af_sky)"
+        echo "  status          Show current voice mode status"
+        echo ""
+        echo "When enabled, Claude will automatically speak all responses."
+        exit 1
+        ;;
+esac

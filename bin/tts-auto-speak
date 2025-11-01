@@ -1,0 +1,59 @@
+#!/bin/bash
+# Auto-speak helper for voice mode
+# If voice mode is enabled, generates and plays speech from stdin or argument
+
+STATE_FILE="$HOME/.config/tts-service/voice_mode"
+TTS_URL="http://localhost:8880"
+
+# Check if voice mode is enabled
+if [ ! -f "$STATE_FILE" ]; then
+    # Voice mode disabled, exit silently
+    exit 0
+fi
+
+# Get voice from state file
+VOICE=$(cat "$STATE_FILE")
+
+# Get text from argument or stdin
+if [ -n "$1" ]; then
+    TEXT="$1"
+else
+    TEXT=$(cat)
+fi
+
+# Skip if text is empty
+if [ -z "$TEXT" ]; then
+    exit 0
+fi
+
+# Generate unique temp file
+TEMP_FILE="/tmp/tts-auto-speak-$$.mp3"
+
+# Create JSON request file
+JSON_FILE="/tmp/tts-request-$$.json"
+cat > "$JSON_FILE" << EOF
+{
+  "model": "kokoro",
+  "input": "$TEXT",
+  "voice": "$VOICE",
+  "speed": 1.0,
+  "response_format": "mp3"
+}
+EOF
+
+# Generate speech
+if curl -s -X POST "$TTS_URL/v1/audio/speech" \
+    -H "Content-Type: application/json" \
+    -d @"$JSON_FILE" \
+    -o "$TEMP_FILE" 2>/dev/null; then
+
+    # Play audio
+    if command -v ffplay >/dev/null 2>&1; then
+        ffplay -nodisp -autoexit "$TEMP_FILE" 2>/dev/null
+    elif command -v mpg123 >/dev/null 2>&1; then
+        mpg123 -q "$TEMP_FILE" 2>/dev/null
+    fi
+fi
+
+# Cleanup
+rm -f "$TEMP_FILE" "$JSON_FILE"

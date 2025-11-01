@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  claude-voice-tts:
+    image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
+    container_name: claude-voice-tts
+    ports:
+      - "8880:8880"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8880/v1/audio/voices"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # CPU-only variant (uncomment if no GPU)
+  # claude-voice-tts-cpu:
+  #   image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+  #   container_name: claude-voice-tts
+  #   ports:
+  #     - "8880:8880"
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8880/v1/audio/voices"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s

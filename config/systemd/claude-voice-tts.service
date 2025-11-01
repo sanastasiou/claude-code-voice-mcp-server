@@ -1,0 +1,28 @@
+[Unit]
+Description=Kokoro TTS Docker Container
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+TimeoutStartSec=0
+
+# Stop existing container if running
+ExecStartPre=-/usr/bin/docker stop claude-voice-tts
+ExecStartPre=-/usr/bin/docker rm claude-voice-tts
+
+# Start Kokoro TTS container with GPU support
+ExecStart=/usr/bin/docker run \
+    --rm \
+    --name claude-voice-tts \
+    --gpus all \
+    -p 8880:8880 \
+    ghcr.io/remsky/kokoro-fastapi-gpu:latest
+
+# Stop container on service stop
+ExecStop=/usr/bin/docker stop claude-voice-tts
+
+[Install]
+WantedBy=default.target
