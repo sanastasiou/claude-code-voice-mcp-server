@@ -29,12 +29,15 @@ fi
 # Generate unique temp file
 TEMP_FILE="/tmp/tts-auto-speak-$$.mp3"
 
-# Create JSON request file
+# Create JSON request file with proper escaping
 JSON_FILE="/tmp/tts-request-$$.json"
+# Escape text for JSON: backslashes, quotes, newlines, apostrophes
+ESCAPED_TEXT=$(echo "$TEXT" | python3 -c 'import json, sys; print(json.dumps(sys.stdin.read().strip()))')
+
 cat > "$JSON_FILE" << EOF
 {
   "model": "kokoro",
-  "input": "$TEXT",
+  "input": $ESCAPED_TEXT,
   "voice": "$VOICE",
   "speed": 1.0,
   "response_format": "mp3"
