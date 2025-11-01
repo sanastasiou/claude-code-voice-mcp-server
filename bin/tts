@@ -183,6 +183,10 @@ cmd_test() {
     print_success "Kokoro TTS service is working correctly!"
 }
 
+cmd_voice_mode() {
+    exec tts-voice-mode "$@"
+}
+
 cmd_help() {
     cat << EOF
 Kokoro TTS Service Control
@@ -190,21 +194,29 @@ Kokoro TTS Service Control
 Usage: tts <command> [options]
 
 Commands:
-  start       Start the Kokoro TTS service
-  stop        Stop the Kokoro TTS service
-  restart     Restart the Kokoro TTS service
+  start       Start the Claude Voice TTS service
+  stop        Stop the Claude Voice TTS service
+  restart     Restart the Claude Voice TTS service
   status      Show service status and configuration
   logs        Show service logs (use -f to follow)
   enable      Enable auto-start on login
   disable     Disable auto-start
   test        Test if service is working
+  voice-mode  Toggle automatic voice mode for Claude responses
   help        Show this help message
 
+Voice Mode Commands:
+  tts voice-mode on              Enable voice mode
+  tts voice-mode off             Disable voice mode
+  tts voice-mode voice <voice>   Change voice (e.g., am_adam)
+  tts voice-mode status          Show current status
+
 Examples:
-  tts start           # Start the service
-  tts logs -f         # Follow logs in real-time
-  tts status          # Show detailed status
-  tts test            # Test if service is working
+  tts start               # Start the service
+  tts logs -f             # Follow logs in real-time
+  tts status              # Show detailed status
+  tts test                # Test if service is working
+  tts voice-mode on       # Enable automatic voice for Claude
 
 Configuration:
   Service URL: http://localhost:8880
@@ -241,6 +253,9 @@ main() {
             ;;
         test)
             cmd_test
+            ;;
+        voice-mode)
+            cmd_voice_mode "${@:2}"
             ;;
         help|--help|-h)
             cmd_help
