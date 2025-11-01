@@ -1,0 +1,77 @@
+# Example CLAUDE.md Configuration for Voice Mode
+
+Add this section to your project's `CLAUDE.md` file to enable automatic voice responses from Claude Code.
+
+```markdown
+## Voice Mode - Automatic Speech
+
+**You have access to automatic voice output via Claude Voice TTS system.**
+
+### Voice Mode Control
+
+**Check if voice mode is enabled:**
+```bash
+[ -f ~/.config/tts-service/voice_mode ] && echo "enabled" || echo "disabled"
+```
+
+**Enable/Disable voice mode:**
+```bash
+tts voice-mode on           # Enable with default voice (af_bella)
+tts voice-mode off          # Disable
+tts voice-mode status       # Check current status
+```
+
+**Change voice:**
+```bash
+tts voice-mode voice am_adam       # Male voice
+tts voice-mode voice af_sky        # Female voice
+```
+
+### Auto-Speak Integration
+
+**When voice mode is enabled**, automatically speak your responses:
+
+```bash
+tts-auto-speak "Your response text here"
+```
+
+The `tts-auto-speak` command:
+- Checks `~/.config/tts-service/voice_mode` file
+- If voice mode is enabled, generates and plays speech
+- If disabled, exits silently (no-op)
+- Automatically uses the voice specified in the state file
+
+**Available voices:**
+- Female: af_bella, af_sky, af_nicole, af_sarah, af_nova, bf_emma, bf_lily, af_jessica, af_river, af_heart
+- Male: am_adam, am_michael, am_liam, am_eric, bm_george, bm_lewis, am_onyx, am_echo, bm_daniel, am_fenrir
+
+### Usage Pattern
+
+After completing tasks or providing important information, speak the response:
+
+```bash
+# Example: After completing a build
+if [ -f ~/.config/tts-service/voice_mode ]; then
+    tts-auto-speak "Build completed successfully with no errors."
+fi
+```
+
+**IMPORTANT**: When voice mode is enabled, call `tts-auto-speak` with your key responses to provide audible feedback. This creates a more interactive experience.
+
+### Example Integration
+
+```bash
+# In your script or after a command
+if some_command; then
+    echo "Command succeeded"
+    tts-auto-speak "Command succeeded"
+else
+    echo "Command failed"
+    tts-auto-speak "Command failed with error"
+fi
+```
+```
+
+## Installation
+
+Copy the relevant section above into your project's `.claude/CLAUDE.md` or `CLAUDE.md` file to enable voice mode awareness for Claude Code.
